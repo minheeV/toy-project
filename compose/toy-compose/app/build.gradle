@@ -2,12 +2,13 @@ plugins {
     id 'com.android.application'
     id 'org.jetbrains.kotlin.android'
     id 'kotlin-kapt'
+    id 'com.google.android.libraries.mapsplatform.secrets-gradle-plugin'
 }
 
 Properties properties = new Properties()
 properties.load(project.rootProject.file('local.properties').newDataInputStream())
 
-def naver_client_id = properties.getProperty('naver_client_id')
+//def naver_client_id = properties.getProperty('naver_client_id')
 
 android {
     compileSdk 33
@@ -22,7 +23,7 @@ android {
         buildConfigField "String","NAVER_CLIENT_ID",properties['naver_client_id']
 
         //AndroidManifest에서 쓸수 있도록 지정
-        manifestPlaceholders = [NAVER_CLIENT_ID: naver_client_id]
+        //manifestPlaceholders = [NAVER_CLIENT_ID: naver_client_id]
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
@@ -70,6 +71,8 @@ dependencies {
     debugImplementation "androidx.compose.ui:ui-tooling:$compose_version"
     debugImplementation "androidx.compose.ui:ui-test-manifest:$compose_version"
 
-    implementation "io.github.fornewid:naver-map-compose:1.1.0"
+    implementation "io.github.fornewid:naver-map-compose:1.2.3"
     implementation 'com.naver.maps:map-sdk:3.15.0'
+
+    implementation 'com.google.android.gms:play-services-location:21.0.1'
 }
