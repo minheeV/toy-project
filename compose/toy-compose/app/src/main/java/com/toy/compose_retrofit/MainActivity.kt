@@ -27,7 +27,6 @@ import com.naver.maps.map.util.FusedLocationSource
 import com.toy.compose_retrofit.MainActivity.Companion.LOCATION_PERMISSION_REQUEST_CODE
 
 
-@ExperimentalNaverMapApi
 class MainActivity : ComponentActivity() {
 
     companion object {
@@ -106,7 +105,7 @@ fun DrawMap() {
         ){
             Marker(
                 state = MarkerState(position = testPos),
-                captionText = "Marker in seoul",
+                captionText = "Marker",
                 captionColor = Color.Blue
             )
         }
