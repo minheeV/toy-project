@@ -2,9 +2,12 @@
 
 package com.toy.compose_retrofit
 
+import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.pm.PackageManager
+import android.location.Location
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.Box
@@ -20,14 +23,17 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import com.google.android.gms.location.LocationServices
 import com.naver.maps.geometry.LatLng
 import com.naver.maps.map.CameraPosition
+import com.naver.maps.map.NaverMap
+import com.naver.maps.map.OnMapReadyCallback
 import com.naver.maps.map.compose.*
 import com.naver.maps.map.util.FusedLocationSource
 import com.toy.compose_retrofit.MainActivity.Companion.LOCATION_PERMISSION_REQUEST_CODE
 
 
-class MainActivity : ComponentActivity() {
+class MainActivity : ComponentActivity(), OnMapReadyCallback{
 
     companion object {
         const val LOCATION_PERMISSION_REQUEST_CODE = 1000
@@ -64,13 +70,25 @@ class MainActivity : ComponentActivity() {
         }
         return true
     }
+
+    override fun onMapReady(p0: NaverMap) {
+        Log.d("Main", "onMapReady")
+    }
 }
 
+@SuppressLint("MissingPermission")
 @Composable
 fun DrawMap() {
     val context = LocalContext.current as Activity
-    val locationSources = FusedLocationSource(context, LOCATION_PERMISSION_REQUEST_CODE)
-    val testPos = LatLng(37.584697, 126.885875)
+    val locationSources = remember{
+        FusedLocationSource(context, LOCATION_PERMISSION_REQUEST_CODE)
+    }
+    var testPos = LatLng(37.584697, 126.885875)
+
+    val cameraPositionState: CameraPositionState = rememberCameraPositionState {
+        position = CameraPosition(testPos, 13.0)
+    }
+
 
     val mapProperties by remember {
         mutableStateOf(
@@ -88,13 +106,10 @@ fun DrawMap() {
         )
     }
 
-    val cameraPositionState: CameraPositionState = rememberCameraPositionState {
-        position = CameraPosition(testPos, 13.0)
-    }
 
     Box(Modifier.fillMaxSize()) {
         NaverMap(
-            locationSource = locationSources,
+            locationSource = rememberFusedLocationSource(),
             properties = mapProperties,
             uiSettings = mapUiSettings,
             cameraPositionState = cameraPositionState,
