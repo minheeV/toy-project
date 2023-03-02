@@ -2,14 +2,16 @@
 
 package com.toy.compose_retrofit
 
+import android.Manifest.permission.ACCESS_COARSE_LOCATION
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.pm.PackageManager
-import android.location.Location
 import android.os.Bundle
 import android.util.Log
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
@@ -23,17 +25,12 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
-import com.google.android.gms.location.LocationServices
-import com.naver.maps.geometry.LatLng
-import com.naver.maps.map.CameraPosition
-import com.naver.maps.map.NaverMap
-import com.naver.maps.map.OnMapReadyCallback
+
 import com.naver.maps.map.compose.*
-import com.naver.maps.map.util.FusedLocationSource
-import com.toy.compose_retrofit.MainActivity.Companion.LOCATION_PERMISSION_REQUEST_CODE
 
 
-class MainActivity : ComponentActivity(), OnMapReadyCallback{
+
+class MainActivity : ComponentActivity(){
 
     companion object {
         const val LOCATION_PERMISSION_REQUEST_CODE = 1000
@@ -71,14 +68,21 @@ class MainActivity : ComponentActivity(), OnMapReadyCallback{
         return true
     }
 
-    override fun onMapReady(p0: NaverMap) {
-        Log.d("Main", "onMapReady")
-    }
 }
 
 @SuppressLint("MissingPermission")
 @Composable
 fun DrawMap() {
+    NaverMap(
+        locationSource = rememberFusedLocationSource(),
+        properties = MapProperties(
+            locationTrackingMode = LocationTrackingMode.Follow,
+        ),
+        uiSettings = MapUiSettings(
+            isLocationButtonEnabled = true,
+        )
+    )
+/*
     val context = LocalContext.current as Activity
     val locationSources = remember{
         FusedLocationSource(context, LOCATION_PERMISSION_REQUEST_CODE)
@@ -95,7 +99,6 @@ fun DrawMap() {
             MapProperties(
                 maxZoom = 15.0,
                 minZoom = 8.0,
-                locationTrackingMode = LocationTrackingMode.Follow
             )
         )
     }
@@ -110,8 +113,12 @@ fun DrawMap() {
     Box(Modifier.fillMaxSize()) {
         NaverMap(
             locationSource = rememberFusedLocationSource(),
-            properties = mapProperties,
-            uiSettings = mapUiSettings,
+            properties = MapProperties(
+                locationTrackingMode = LocationTrackingMode.Face,
+            ),//mapProperties,
+            uiSettings = MapUiSettings(
+                isLocationButtonEnabled = true,
+            ),
             cameraPositionState = cameraPositionState,
             onLocationChange = {
                 println("lon : ${it.longitude} , lat : ${it.latitude}")
@@ -126,6 +133,7 @@ fun DrawMap() {
         }
     }
 
+*/
 
 }
 
