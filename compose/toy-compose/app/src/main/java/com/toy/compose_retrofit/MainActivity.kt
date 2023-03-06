@@ -2,10 +2,13 @@
 
 package com.toy.compose_retrofit
 
+import android.animation.ObjectAnimator
 import android.annotation.SuppressLint
-import android.app.Activity
 import android.content.pm.PackageManager
+import android.os.Build
 import android.os.Bundle
+import android.view.View
+import android.view.animation.AnticipateInterpolator
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.Box
@@ -13,12 +16,12 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.core.animation.doOnEnd
 import com.toy.compose_retrofit.ui.theme.Compose_retrofitTheme
-import androidx.compose.ui.platform.LocalContext
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import com.naver.maps.map.compose.*
-
 
 
 class MainActivity : ComponentActivity(){
@@ -29,8 +32,19 @@ class MainActivity : ComponentActivity(){
     )
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        installSplashScreen()
         super.onCreate(savedInstanceState)
 
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            splashScreen.setOnExitAnimationListener { splashScreenView ->
+                ObjectAnimator.ofFloat(splashScreenView, View.ALPHA, 1f, 0f).run{
+                    interpolator = AnticipateInterpolator()
+                    duration = 400L
+                    doOnEnd { splashScreenView.remove() }
+                    start()
+                }
+            }
+        }
         if (!isPermitted())
             ActivityCompat.requestPermissions(this, permissions, permissionRequest)
 
@@ -47,9 +61,7 @@ class MainActivity : ComponentActivity(){
     private fun isPermitted(): Boolean {
         for (perm in permissions) {
             if (ContextCompat.checkSelfPermission(this, perm)
-                    != PackageManager.PERMISSION_GRANTED) {
-                return false
-            }
+                    != PackageManager.PERMISSION_GRANTED) return false
         }
         return true
     }
@@ -59,8 +71,7 @@ class MainActivity : ComponentActivity(){
 @SuppressLint("MissingPermission")
 @Composable
 fun DrawMap() {
-    val context = LocalContext.current as Activity
-
+    //val context = LocalContext.current as Activity
     Box(Modifier.fillMaxSize()) {
         NaverMap(
             locationSource = rememberFusedLocationSource(),
@@ -76,8 +87,6 @@ fun DrawMap() {
 
         ){}
     }
-
-
 }
 
 @Preview(showBackground = true)

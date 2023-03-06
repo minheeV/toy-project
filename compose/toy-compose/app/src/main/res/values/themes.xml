@@ -3,4 +3,13 @@
     <style name="Theme.Compose_retrofit" parent="Theme.MaterialComponents.Light.NoActionBar">
         <item name="android:statusBarColor">@color/purple_700</item>
     </style>
+
+    <style name="Theme.Compose_retrofit.Splash" parent="Theme.SplashScreen">
+        <!--splash 배경-->
+        <item name="windowSplashScreenBackground">@color/white</item>
+        <!--splash icon-->
+        <item name="windowSplashScreenAnimatedIcon">@drawable/smile</item>
+        <!--splash 끝난 후 보일 화면의 테마-->
+        <item name="postSplashScreenTheme">@style/Theme.Compose_retrofit</item>
+    </style>
 </resources>
