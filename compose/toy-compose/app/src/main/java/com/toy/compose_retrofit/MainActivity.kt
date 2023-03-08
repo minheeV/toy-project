@@ -29,14 +29,24 @@ import com.toy.compose_retrofit.ui.theme.Compose_retrofitTheme
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
+import com.google.gson.Gson
+import com.naver.maps.geometry.LatLng
 import com.naver.maps.map.compose.*
 import com.toy.compose_retrofit.retrofit.RetrofitAPI
 import com.toy.compose_retrofit.retrofit.data.RentalDTO
+import org.json.JSONObject
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
+import java.io.BufferedReader
+import java.io.InputStreamReader
+import java.lang.StringBuilder
+import java.net.HttpURLConnection
+import java.net.URL
+import java.net.URLEncoder
+import kotlin.concurrent.thread
 
 
 class MainActivity : ComponentActivity() {
@@ -88,8 +98,7 @@ class MainActivity : ComponentActivity() {
  * retrofit
  */
 @Composable
-fun GetJsonData(rentalList: MutableList<RentalDTO>, ctx: Context){
-
+fun GetJsonData(rentalList: MutableList<RentalDTO>, ctx: Context) {
     val retrofit = Retrofit.Builder()
         .baseUrl("https://data.myhome.go.kr:443/")
         .addConverterFactory(GsonConverterFactory.create())
@@ -103,28 +112,68 @@ fun GetJsonData(rentalList: MutableList<RentalDTO>, ctx: Context){
         "140",
         "10",
         "1"
-    ).enqueue(object : Callback<RentalDTO>{
+    ).enqueue(object : Callback<RentalDTO> {
         override fun onResponse(call: Call<RentalDTO>, response: Response<RentalDTO>) {
-            if(response.isSuccessful.not()) return
+            if (response.isSuccessful.not()) return
             rentalList.add(0, response.body()!!)
         }
+
         override fun onFailure(call: Call<RentalDTO>, t: Throwable) {
             t.printStackTrace()
         }
     })
 }
 
+@Composable
+fun RequestGeocode(addr: String) {
+    thread(start = true) {
+        try {
+            val query =
+                "https://naveropenapi.apigw.ntruss.com/map-geocode/v2/geocode?query=" + URLEncoder.encode(
+                    addr,
+                    "UTF-8"
+                )
+            val url = URL(query)
+            val conn = url.openConnection() as HttpURLConnection
+
+            val bufferedReader: BufferedReader
+            conn.apply {
+                connectTimeout = 5000
+                readTimeout = 5000
+                requestMethod = "GET"
+                setRequestProperty("X-NCP-APIGW-API-KEY-ID", BuildConfig.naver_client_id)
+                setRequestProperty("X-NCP-APIGW-API-KEY", BuildConfig.naver_client_secret)
+                doInput = true
+            }
+            val responseCode = conn.responseCode
+            bufferedReader =
+                if (responseCode == 200) BufferedReader(InputStreamReader(conn.inputStream))
+                else BufferedReader(InputStreamReader(conn.errorStream))
+
+            val line = bufferedReader.readLine()
+            val jsonInfo = JSONObject(line)
+            val a = jsonInfo.optJSONArray("addresses")
+            val x = a?.getJSONObject(0)?.getString("x")
+            val y = a?.getJSONObject(0)?.getString("y")
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+    }
+
+}
+
 @SuppressLint("MissingPermission")
 @Composable
 fun DrawMap() {
     val context = LocalContext.current as Activity
-    val data = remember { mutableStateListOf<RentalDTO>()}
+    val data = remember { mutableStateListOf<RentalDTO>() }
     GetJsonData(rentalList = data, ctx = context)
-    LazyColumn(modifier = Modifier.fillMaxSize(),
+    LazyColumn(
+        modifier = Modifier.fillMaxSize(),
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
-    ){
-        items(data){item ->
+    ) {
+        items(data) { item ->
             NaverMap(
                 modifier = Modifier.fillParentMaxHeight(),
                 locationSource = rememberFusedLocationSource(),
@@ -136,7 +185,12 @@ fun DrawMap() {
                 ),
                 onLocationChange = {
                 }
-            ){
+            ) {
+                Marker(
+                    state = MarkerState(position = LatLng(37.532600, 127.024612)),
+                    captionText = item.list.get(0).rnAdres
+                )
+                RequestGeocode(item.list.get(0).rnAdres!!)
             }
         }
     }
