@@ -26,9 +26,13 @@ class MainActivity : ComponentActivity() {
             AreaDropdownMenuTheme {
                 Row(
                     modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceEvenly
                 ) {
-                    FirstDropDownMenu(viewModel)
+                    val code by remember {
+                        mutableStateOf("")
+                    }
+                    /*FirstDropDownMenu(viewModel) {
+                        code = it
+                    }*/
                     SecondDropDownMenu(viewModel)
                 }
             }
