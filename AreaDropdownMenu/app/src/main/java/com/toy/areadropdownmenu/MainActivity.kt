@@ -74,6 +74,9 @@ fun FirstDropDownMenu(
                 sidoText = value
             }) {
                 Text(value)
+                DropdownMenuItem(onClick = { /*TODO*/ }) {
+
+                }
             }
         }
     }
