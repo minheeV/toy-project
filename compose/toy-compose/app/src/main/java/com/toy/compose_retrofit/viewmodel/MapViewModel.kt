@@ -55,6 +55,8 @@ class MapViewModel : ViewModel() {
         }
     }
 
+
+    // TODO suspend workmanager
     fun resultGeocoding(addr: String) {
         thread(start = true) {
             try {
