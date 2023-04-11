@@ -23,7 +23,6 @@ class DropDownActivity : ComponentActivity() {
             AreaDropdownMenuTheme {
                 var code by remember { mutableStateOf("0") }
                 Row {
-                    //ExposedDropDownMenu()
                     FirstDropDownMenu {
                         code = it
                     }
