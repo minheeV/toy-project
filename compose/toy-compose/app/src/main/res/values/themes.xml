@@ -8,7 +8,7 @@
         <!--splash 배경-->
         <item name="windowSplashScreenBackground">@color/white</item>
         <!--splash icon-->
-        <item name="windowSplashScreenAnimatedIcon">@drawable/smile</item>
+        <item name="windowSplashScreenAnimatedIcon">@drawable/kotlinicon</item>
         <!--splash 끝난 후 보일 화면의 테마-->
         <item name="postSplashScreenTheme">@style/Theme.Compose_retrofit</item>
     </style>

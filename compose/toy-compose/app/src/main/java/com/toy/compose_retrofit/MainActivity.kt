@@ -8,6 +8,7 @@ import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
 import android.view.View
+import android.view.WindowManager
 import android.view.animation.AnticipateInterpolator
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -15,11 +16,17 @@ import androidx.activity.viewModels
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material.DropdownMenu
-import androidx.compose.material.Surface
+import androidx.compose.material.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.colorResource
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.core.animation.doOnEnd
 import com.toy.compose_retrofit.ui.theme.Compose_retrofitTheme
@@ -58,11 +65,16 @@ class MainActivity : ComponentActivity() {
         if (!isPermitted())
             ActivityCompat.requestPermissions(this, permissions, permissionRequest)
 
+        // Hide the status bar.
+        window.decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_FULLSCREEN
+        // Remember that you should never show the action bar if the
+        // status bar is hidden, so hide that too if necessary.
+        actionBar?.hide()
+
         setContent {
             Compose_retrofitTheme {
                 Surface(modifier = Modifier.fillMaxSize()) {
-                    DrawMap(rentalList = mapViewModel.rentalResponse)
-                    mapViewModel.getRentalList()
+                    TopAppBarWithTitle()
                 }
             }
         }
@@ -82,6 +94,33 @@ class MainActivity : ComponentActivity() {
     }
 }
 
+@SuppressLint("UnusedMaterialScaffoldPaddingParameter")
+@Composable
+fun TopAppBarWithTitle(viewModel: MapViewModel = androidx.lifecycle.viewmodel.compose.viewModel()
+){
+    Scaffold(topBar = {
+        TopAppBar(
+            title = { Text(text = stringResource(id = R.string.appname),
+            color = Color.White,
+            fontWeight = FontWeight.Bold
+            )},
+            backgroundColor = colorResource(id = R.color.orange),
+            actions = {
+                IconButton(onClick = { /*TODO*/ }) {
+                    Icon(
+                        imageVector = Icons.Filled.Search,
+                        contentDescription = "Search",
+                        tint = Color.White,
+                    )
+                }
+            }
+        )
+    }) {
+        DrawMap(rentalList = viewModel.rentalResponse)
+        viewModel.getRentalList()
+    }
+}
+
 @SuppressLint("MissingPermission")
 @Composable
 fun DrawMap(
@@ -93,6 +132,7 @@ fun DrawMap(
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
+
         items(rentalList) { item ->
             NaverMap(
                 modifier = Modifier.fillParentMaxHeight(),
@@ -104,6 +144,7 @@ fun DrawMap(
                     isLocationButtonEnabled = true,
                 ),
                 onLocationChange = {
+
                 }
             ) {
                 Marker(
@@ -120,7 +161,7 @@ fun DrawMap(
 @Preview(showBackground = true)
 @Composable
 fun DefaultPreview() {
-/*    Compose_retrofitTheme {
-        DrawMap()
+    /*Compose_retrofitTheme {
+        DrawMap();
     }*/
 }

@@ -43,6 +43,7 @@ class MapViewModel : ViewModel() {
                         if (response.isSuccessful.not()) return
                         rentalList.add(0, response.body()!!)
                         rentalResponse = rentalList
+                        Log.d("minhee" , "list size = ${rentalList.size}" )
                     }
 
                     override fun onFailure(call: Call<RentalDTO>, t: Throwable) {
