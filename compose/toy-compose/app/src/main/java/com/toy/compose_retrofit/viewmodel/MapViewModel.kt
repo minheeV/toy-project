@@ -11,6 +11,7 @@ import com.naver.maps.geometry.LatLng
 import com.toy.compose_retrofit.BuildConfig
 import com.toy.compose_retrofit.retrofit.RetrofitAPI
 import com.toy.compose_retrofit.retrofit.data.RentalDTO
+import com.toy.compose_retrofit.retrofit.data.RentalData
 import kotlinx.coroutines.launch
 import org.json.JSONObject
 import retrofit2.Call
@@ -24,7 +25,7 @@ import java.net.URLEncoder
 import kotlin.concurrent.thread
 
 class MapViewModel : ViewModel() {
-    var rentalResponse: List<RentalDTO> by mutableStateOf(listOf())
+    var rentalResponse: List<RentalData> by mutableStateOf(listOf())
     //var latLan: LatLng by mutableStateOf(latLan)
 
     fun getRentalList(){
@@ -35,15 +36,21 @@ class MapViewModel : ViewModel() {
                 apiService.getRentalList(
                     BuildConfig.api_key,
                     "11",
-                    "140",
+                    "110",
                     "10",
                     "1"
                 ).enqueue(object : Callback<RentalDTO> {
                     override fun onResponse(call: Call<RentalDTO>, response: Response<RentalDTO>) {
                         if (response.isSuccessful.not()) return
                         rentalList.add(0, response.body()!!)
-                        rentalResponse = rentalList
-                        Log.d("minhee" , "list size = ${rentalList.size}" )
+
+                        rentalResponse = rentalList[0].list
+
+                        for(item in rentalResponse){
+                            Log.d("minhee", "latlng : ${resultGeocoding(item.rnAdres.toString())}")
+                        }
+
+                        Log.d("minhee" , "list size = ${rentalResponse.size}" )
                     }
 
                     override fun onFailure(call: Call<RentalDTO>, t: Throwable) {
@@ -58,7 +65,8 @@ class MapViewModel : ViewModel() {
 
 
     // TODO suspend workmanager 고민해보기
-    fun resultGeocoding(addr: String) {
+    fun resultGeocoding(addr: String) : LatLng{
+        var latlng : LatLng? = null
         thread(start = true) {
             try {
                 val query =
@@ -89,10 +97,14 @@ class MapViewModel : ViewModel() {
                 val x = a?.getJSONObject(0)?.getString("x")?.toDouble()
                 val y = a?.getJSONObject(0)?.getString("y")?.toDouble()
                 Log.d("minhee", "x: $x, y: $y")
-                //latLan = LatLng(x!!,y!!)
+
+                latlng = LatLng(x!!,y!!)
+
+
             } catch (e: Exception) {
                 e.printStackTrace()
             }
         }
+        return LatLng(latlng!!.latitude, latlng!!.longitude)
     }
 }

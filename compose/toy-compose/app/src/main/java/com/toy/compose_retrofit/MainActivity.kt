@@ -7,6 +7,7 @@ import android.annotation.SuppressLint
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import android.view.WindowManager
 import android.view.animation.AnticipateInterpolator
@@ -116,8 +117,8 @@ fun TopAppBarWithTitle(viewModel: MapViewModel = androidx.lifecycle.viewmodel.co
             }
         )
     }) {
-        DrawMap(rentalList = viewModel.rentalResponse)
         viewModel.getRentalList()
+        DrawMap(rentalList = viewModel.rentalResponse)
     }
 }
 
@@ -147,11 +148,11 @@ fun DrawMap(
 
                 }
             ) {
+                Log.d("minhee", "뭐가 먼저이지")
                 Marker(
                     state = MarkerState(position = LatLng(37.532600, 127.024612)),
                     captionText = item.list.get(0).rnAdres
                 )
-                viewModel.resultGeocoding(item.list.get(0).rnAdres.toString())
             }
         }
     }
