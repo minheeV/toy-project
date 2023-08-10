@@ -118,7 +118,7 @@ fun TopAppBarWithTitle(viewModel: MapViewModel = androidx.lifecycle.viewmodel.co
         )
     }) {
         viewModel.getRentalList()
-        DrawMap(rentalList = viewModel.rentalResponse)
+        //DrawMap(rentalList = viewModel.rentalResponse)
     }
 }
 

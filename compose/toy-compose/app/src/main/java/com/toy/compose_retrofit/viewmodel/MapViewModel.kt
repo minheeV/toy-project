@@ -8,11 +8,13 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.naver.maps.geometry.LatLng
+import com.naver.maps.map.compose.NaverMap
 import com.toy.compose_retrofit.BuildConfig
+import com.toy.compose_retrofit.data.RentalItem
 import com.toy.compose_retrofit.retrofit.RetrofitAPI
 import com.toy.compose_retrofit.retrofit.data.RentalDTO
 import com.toy.compose_retrofit.retrofit.data.RentalData
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.*
 import org.json.JSONObject
 import retrofit2.Call
 import retrofit2.Callback
@@ -26,9 +28,10 @@ import kotlin.concurrent.thread
 
 class MapViewModel : ViewModel() {
     var rentalResponse: List<RentalData> by mutableStateOf(listOf())
+    var rentalList: MutableList<RentalItem> by mutableListOf<RentalItem>()
     //var latLan: LatLng by mutableStateOf(latLan)
 
-    fun getRentalList(){
+    fun getRentalList() {
         viewModelScope.launch {
             val apiService = RetrofitAPI.getInstance()
             val rentalList = mutableListOf<RentalDTO>()
@@ -45,12 +48,10 @@ class MapViewModel : ViewModel() {
                         rentalList.add(0, response.body()!!)
 
                         rentalResponse = rentalList[0].list
+                        resultGeocoding(rentalResponse)
+                        Log.d("minhee", "list size = ${rentalResponse.size}")
 
-                        for(item in rentalResponse){
-                            Log.d("minhee", "latlng : ${resultGeocoding(item.rnAdres.toString())}")
-                        }
 
-                        Log.d("minhee" , "list size = ${rentalResponse.size}" )
                     }
 
                     override fun onFailure(call: Call<RentalDTO>, t: Throwable) {
@@ -65,13 +66,12 @@ class MapViewModel : ViewModel() {
 
 
     // TODO suspend workmanager 고민해보기
-    fun resultGeocoding(addr: String) : LatLng{
-        var latlng : LatLng? = null
-        thread(start = true) {
+    fun resultGeocoding(list: List<RentalData>) {
+        for (item in list) {
             try {
                 val query =
                     "https://naveropenapi.apigw.ntruss.com/map-geocode/v2/geocode?query=" + URLEncoder.encode(
-                        addr,
+                        item.rnAdres,
                         "UTF-8"
                     )
                 val url = URL(query)
@@ -98,13 +98,12 @@ class MapViewModel : ViewModel() {
                 val y = a?.getJSONObject(0)?.getString("y")?.toDouble()
                 Log.d("minhee", "x: $x, y: $y")
 
-                latlng = LatLng(x!!,y!!)
-
+                rentalList
 
             } catch (e: Exception) {
                 e.printStackTrace()
             }
         }
-        return LatLng(latlng!!.latitude, latlng!!.longitude)
+
     }
 }
