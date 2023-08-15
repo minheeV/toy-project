@@ -36,6 +36,7 @@ import androidx.core.content.ContextCompat
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import com.naver.maps.geometry.LatLng
 import com.naver.maps.map.compose.*
+import com.toy.compose_retrofit.data.RentalItem
 import com.toy.compose_retrofit.retrofit.data.RentalDTO
 import com.toy.compose_retrofit.viewmodel.MapViewModel
 
@@ -118,22 +119,21 @@ fun TopAppBarWithTitle(viewModel: MapViewModel = androidx.lifecycle.viewmodel.co
         )
     }) {
         viewModel.getRentalList()
-        //DrawMap(rentalList = viewModel.rentalResponse)
+        DrawMap(rentalList = viewModel.rentalList)
     }
 }
 
 @SuppressLint("MissingPermission")
 @Composable
 fun DrawMap(
-    rentalList: List<RentalDTO>,
-    viewModel: MapViewModel = androidx.lifecycle.viewmodel.compose.viewModel()
+    rentalList: MutableList<RentalItem>,
+    //viewModel: MapViewModel = androidx.lifecycle.viewmodel.compose.viewModel()
 ) {
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-
         items(rentalList) { item ->
             NaverMap(
                 modifier = Modifier.fillParentMaxHeight(),
@@ -150,8 +150,8 @@ fun DrawMap(
             ) {
                 Log.d("minhee", "뭐가 먼저이지")
                 Marker(
-                    state = MarkerState(position = LatLng(37.532600, 127.024612)),
-                    captionText = item.list.get(0).rnAdres
+                    state = MarkerState(position = item.rentalGeo!!),
+                    captionText = item.rentalItem?.rnAdres
                 )
             }
         }

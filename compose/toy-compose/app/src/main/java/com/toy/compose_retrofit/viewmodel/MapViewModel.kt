@@ -28,8 +28,7 @@ import kotlin.concurrent.thread
 
 class MapViewModel : ViewModel() {
     var rentalResponse: List<RentalData> by mutableStateOf(listOf())
-    var rentalList: MutableList<RentalItem> by mutableListOf<RentalItem>()
-    //var latLan: LatLng by mutableStateOf(latLan)
+    var rentalList =  mutableListOf<RentalItem>()
 
     fun getRentalList() {
         viewModelScope.launch {
@@ -65,45 +64,51 @@ class MapViewModel : ViewModel() {
     }
 
 
-    // TODO suspend workmanager 고민해보기
     fun resultGeocoding(list: List<RentalData>) {
-        for (item in list) {
-            try {
-                val query =
-                    "https://naveropenapi.apigw.ntruss.com/map-geocode/v2/geocode?query=" + URLEncoder.encode(
-                        item.rnAdres,
-                        "UTF-8"
-                    )
-                val url = URL(query)
-                val conn = url.openConnection() as HttpURLConnection
+        var listrental = mutableListOf<RentalItem>()
+        thread {
+            for (item in list) {
+                try {
+                    val query =
+                        "https://naveropenapi.apigw.ntruss.com/map-geocode/v2/geocode?query=" + URLEncoder.encode(
+                            item.rnAdres,
+                            "UTF-8"
+                        )
+                    val url = URL(query)
+                    val conn = url.openConnection() as HttpURLConnection
 
-                val bufferedReader: BufferedReader
-                conn.apply {
-                    connectTimeout = 5000
-                    readTimeout = 5000
-                    requestMethod = "GET"
-                    setRequestProperty("X-NCP-APIGW-API-KEY-ID", BuildConfig.naver_client_id)
-                    setRequestProperty("X-NCP-APIGW-API-KEY", BuildConfig.naver_client_secret)
-                    doInput = true
+                    val bufferedReader: BufferedReader
+                    conn.apply {
+                        connectTimeout = 5000
+                        readTimeout = 5000
+                        requestMethod = "GET"
+                        setRequestProperty("X-NCP-APIGW-API-KEY-ID", BuildConfig.naver_client_id)
+                        setRequestProperty("X-NCP-APIGW-API-KEY", BuildConfig.naver_client_secret)
+                        doInput = true
+                    }
+                    val responseCode = conn.responseCode
+                    bufferedReader =
+                        if (responseCode == 200) BufferedReader(InputStreamReader(conn.inputStream))
+                        else BufferedReader(InputStreamReader(conn.errorStream))
+
+                    val line = bufferedReader.readLine()
+                    val jsonInfo = JSONObject(line)
+                    val a = jsonInfo.optJSONArray("addresses")
+                    val x = a?.getJSONObject(0)?.getString("x")?.toDouble()
+                    val y = a?.getJSONObject(0)?.getString("y")?.toDouble()
+                    Log.d("minhee", "x: $x, y: $y")
+
+
+                    listrental.add(RentalItem(item, LatLng(x!!,y!!)))
+
+                } catch (e: Exception) {
+                    e.printStackTrace()
                 }
-                val responseCode = conn.responseCode
-                bufferedReader =
-                    if (responseCode == 200) BufferedReader(InputStreamReader(conn.inputStream))
-                    else BufferedReader(InputStreamReader(conn.errorStream))
-
-                val line = bufferedReader.readLine()
-                val jsonInfo = JSONObject(line)
-                val a = jsonInfo.optJSONArray("addresses")
-                val x = a?.getJSONObject(0)?.getString("x")?.toDouble()
-                val y = a?.getJSONObject(0)?.getString("y")?.toDouble()
-                Log.d("minhee", "x: $x, y: $y")
-
-                rentalList
-
-            } catch (e: Exception) {
-                e.printStackTrace()
             }
+
         }
+
+        rentalList = listrental
 
     }
 }
