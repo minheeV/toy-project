@@ -22,6 +22,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.runtime.*
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -100,6 +101,8 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun TopAppBarWithTitle(viewModel: MapViewModel = androidx.lifecycle.viewmodel.compose.viewModel()
 ){
+    viewModel.getRentalList()
+
     Scaffold(topBar = {
         TopAppBar(
             title = { Text(text = stringResource(id = R.string.appname),
@@ -118,8 +121,10 @@ fun TopAppBarWithTitle(viewModel: MapViewModel = androidx.lifecycle.viewmodel.co
             }
         )
     }) {
-        viewModel.getRentalList()
-        DrawMap(rentalList = viewModel.rentalList)
+        val dataEx = viewModel.rentalList.observeAsState()
+        dataEx.value?.let {
+            DrawMap(rentalList = it)
+        }
     }
 }
 
@@ -148,7 +153,6 @@ fun DrawMap(
 
                 }
             ) {
-                Log.d("minhee", "뭐가 먼저이지")
                 Marker(
                     state = MarkerState(position = item.rentalGeo!!),
                     captionText = item.rentalItem?.rnAdres

@@ -5,6 +5,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.naver.maps.geometry.LatLng
@@ -28,7 +29,7 @@ import kotlin.concurrent.thread
 
 class MapViewModel : ViewModel() {
     var rentalResponse: List<RentalData> by mutableStateOf(listOf())
-    var rentalList =  mutableListOf<RentalItem>()
+    var rentalList : MutableLiveData<MutableList<RentalItem>> = MutableLiveData()//mutableListOf<RentalItem>()
 
     fun getRentalList() {
         viewModelScope.launch {
@@ -48,9 +49,6 @@ class MapViewModel : ViewModel() {
 
                         rentalResponse = rentalList[0].list
                         resultGeocoding(rentalResponse)
-                        Log.d("minhee", "list size = ${rentalResponse.size}")
-
-
                     }
 
                     override fun onFailure(call: Call<RentalDTO>, t: Throwable) {
@@ -96,7 +94,7 @@ class MapViewModel : ViewModel() {
                     val a = jsonInfo.optJSONArray("addresses")
                     val x = a?.getJSONObject(0)?.getString("x")?.toDouble()
                     val y = a?.getJSONObject(0)?.getString("y")?.toDouble()
-                    Log.d("minhee", "x: $x, y: $y")
+                    Log.d("tag", "x: $x, y: $y")
 
 
                     listrental.add(RentalItem(item, LatLng(x!!,y!!)))
@@ -108,7 +106,7 @@ class MapViewModel : ViewModel() {
 
         }
 
-        rentalList = listrental
+        rentalList.value = listrental
 
     }
 }
