@@ -94,7 +94,7 @@ class MapViewModel : ViewModel() {
                     val a = jsonInfo.optJSONArray("addresses")
                     val x = a?.getJSONObject(0)?.getString("x")?.toDouble()
                     val y = a?.getJSONObject(0)?.getString("y")?.toDouble()
-                    Log.d("tag", "x: $x, y: $y")
+                    //Log.d("tag", "x: $x, y: $y")
 
 
                     listrental.add(RentalItem(item, LatLng(x!!,y!!)))
