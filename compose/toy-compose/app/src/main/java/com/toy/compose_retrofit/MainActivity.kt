@@ -7,23 +7,15 @@ import android.annotation.SuppressLint
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
-import android.util.Log
 import android.view.View
-import android.view.WindowManager
 import android.view.animation.AnticipateInterpolator
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.activity.viewModels
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.runtime.*
-import androidx.compose.runtime.livedata.observeAsState
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.colorResource
@@ -35,16 +27,10 @@ import com.toy.compose_retrofit.ui.theme.Compose_retrofitTheme
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
-import com.naver.maps.geometry.LatLng
 import com.naver.maps.map.compose.*
-import com.toy.compose_retrofit.data.RentalItem
-import com.toy.compose_retrofit.retrofit.data.RentalDTO
-import com.toy.compose_retrofit.viewmodel.MapViewModel
 
 
 class MainActivity : ComponentActivity() {
-    private val mapViewModel by viewModels<MapViewModel>()
-
     private val permissionRequest = 99
     private var permissions = arrayOf(
         android.Manifest.permission.ACCESS_FINE_LOCATION,
@@ -99,9 +85,7 @@ class MainActivity : ComponentActivity() {
 
 @SuppressLint("UnusedMaterialScaffoldPaddingParameter")
 @Composable
-fun TopAppBarWithTitle(viewModel: MapViewModel = androidx.lifecycle.viewmodel.compose.viewModel()
-){
-    viewModel.getRentalList()
+fun TopAppBarWithTitle(){
 
     Scaffold(topBar = {
         TopAppBar(
@@ -121,44 +105,26 @@ fun TopAppBarWithTitle(viewModel: MapViewModel = androidx.lifecycle.viewmodel.co
             }
         )
     }) {
-        val dataEx = viewModel.rentalList.observeAsState()
-        dataEx.value?.let {
-            DrawMap(rentalList = it)
-        }
+        DrawMap()
     }
 }
 
 @SuppressLint("MissingPermission")
 @Composable
-fun DrawMap(
-    rentalList: MutableList<RentalItem>,
-    //viewModel: MapViewModel = androidx.lifecycle.viewmodel.compose.viewModel()
-) {
-    LazyColumn(
+fun DrawMap() {
+    NaverMap(
         modifier = Modifier.fillMaxSize(),
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        items(rentalList) { item ->
-            NaverMap(
-                modifier = Modifier.fillParentMaxHeight(),
-                locationSource = rememberFusedLocationSource(),
-                properties = MapProperties(
-                    locationTrackingMode = LocationTrackingMode.Follow,
-                ),
-                uiSettings = MapUiSettings(
-                    isLocationButtonEnabled = true,
-                ),
-                onLocationChange = {
+        locationSource = rememberFusedLocationSource(),
+        properties = MapProperties(
+            locationTrackingMode = LocationTrackingMode.Follow,
+        ),
+        uiSettings = MapUiSettings(
+            isLocationButtonEnabled = true,
+        ),
+        onLocationChange = {
 
-                }
-            ) {
-                Marker(
-                    state = MarkerState(position = item.rentalGeo!!),
-                    captionText = item.rentalItem?.rnAdres
-                )
-            }
         }
+    ) {
     }
 }
 
