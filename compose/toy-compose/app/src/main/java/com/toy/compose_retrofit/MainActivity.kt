@@ -11,11 +11,15 @@ import android.view.View
 import android.view.animation.AnticipateInterpolator
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.activity.viewModels
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.runtime.*
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.colorResource
@@ -28,9 +32,12 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import com.naver.maps.map.compose.*
-
+import com.toy.compose_retrofit.viewmodel.MapViewModel
 
 class MainActivity : ComponentActivity() {
+
+    private val viewModel: MapViewModel by viewModels()
+
     private val permissionRequest = 99
     private var permissions = arrayOf(
         android.Manifest.permission.ACCESS_FINE_LOCATION,
@@ -63,7 +70,7 @@ class MainActivity : ComponentActivity() {
         setContent {
             Compose_retrofitTheme {
                 Surface(modifier = Modifier.fillMaxSize()) {
-                    TopAppBarWithTitle()
+                    TopAppBarWithTitle(viewModel)
                 }
             }
         }
@@ -85,7 +92,7 @@ class MainActivity : ComponentActivity() {
 
 @SuppressLint("UnusedMaterialScaffoldPaddingParameter")
 @Composable
-fun TopAppBarWithTitle(){
+fun TopAppBarWithTitle(viewModel: MapViewModel){
 
     Scaffold(topBar = {
         TopAppBar(
@@ -105,27 +112,44 @@ fun TopAppBarWithTitle(){
             }
         )
     }) {
-        DrawMap()
+        DrawMap(viewModel)
     }
 }
 
 @SuppressLint("MissingPermission")
 @Composable
-fun DrawMap() {
-    NaverMap(
-        modifier = Modifier.fillMaxSize(),
-        locationSource = rememberFusedLocationSource(),
-        properties = MapProperties(
-            locationTrackingMode = LocationTrackingMode.Follow,
-        ),
-        uiSettings = MapUiSettings(
-            isLocationButtonEnabled = true,
-        ),
-        onLocationChange = {
+fun DrawMap(viewModel: MapViewModel) {
+    val rentalDataList by viewModel.rentalDataList.observeAsState(emptyList())
 
-        }
-    ) {
+    LaunchedEffect(Unit) {
+        viewModel.getRentalData()
     }
+
+    Column() {
+        if(rentalDataList.isNotEmpty()){
+            LazyColumn() {
+                items (rentalDataList) { item ->
+                    item.rnAdres?.let { Text(text = it) }
+                    Divider()
+                }
+            }
+            NaverMap(
+                modifier = Modifier.fillMaxSize(),
+                locationSource = rememberFusedLocationSource(),
+                properties = MapProperties(
+                    locationTrackingMode = LocationTrackingMode.Follow,
+                ),
+                uiSettings = MapUiSettings(
+                    isLocationButtonEnabled = true,
+                ),
+                onLocationChange = {
+
+                }
+            ) {
+            }
+        }
+    }
+
 }
 
 

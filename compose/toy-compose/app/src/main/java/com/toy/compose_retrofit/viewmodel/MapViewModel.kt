@@ -1,9 +1,11 @@
 package com.toy.compose_retrofit.viewmodel
 
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.toy.compose_retrofit.BuildConfig
-import com.toy.compose_retrofit.retrofit.RetrofitAPI
+import com.toy.compose_retrofit.retrofit.RentalDataRepository
 import com.toy.compose_retrofit.retrofit.data.RentalDTO
 import com.toy.compose_retrofit.retrofit.data.RentalData
 import kotlinx.coroutines.*
@@ -20,12 +22,16 @@ import kotlin.concurrent.thread
 
 class MapViewModel : ViewModel() {
 
+    private val repository = RentalDataRepository()
+
+    private val _rentalDataList = MutableLiveData<List<RentalData>>()
+    val rentalDataList: LiveData<List<RentalData>> = _rentalDataList
+
     fun getRentalData(){
         viewModelScope.launch {
-            val apiService = RetrofitAPI.getInstance()
-            val rentalList = mutableListOf<RentalDTO>()
             try {
-                apiService.getRentalList(
+
+                repository.getRentalData(
                     BuildConfig.api_key,
                     "11",
                     "110",
@@ -34,6 +40,7 @@ class MapViewModel : ViewModel() {
                 ).enqueue(object : Callback<RentalDTO> {
                     override fun onResponse(call: Call<RentalDTO>, response: Response<RentalDTO>) {
                         if (response.isSuccessful.not()) return
+                        _rentalDataList.value = response.body()?.list
                     }
 
                     override fun onFailure(call: Call<RentalDTO>, t: Throwable) {
