@@ -84,12 +84,13 @@ fun FirstDropDownMenu(code: (String) -> Unit) {
                 dismissOnClickOutside = false
             ),
             offset = (DpOffset(0.dp, 20.dp)),
-            modifier = Modifier.requiredSizeIn(maxHeight = 250.dp)
+            modifier = Modifier.requiredSizeIn(maxHeight = 400.dp)
         ) {
             AreaCode.values().forEachIndexed { index, areaCode ->
                 DropdownMenuItem(onClick = {
                     code(areaCode.name)
                     selectItem = areaCode.firstName
+                    expanded = !expanded
                 }) {
                     Text(text = areaCode.firstName)
                 }
@@ -106,13 +107,22 @@ fun SecondDropDownMenu(code: String) {
         var expanded by remember { mutableStateOf(true) }
         var firstCode: String
         var secondCode: String
+        var selectItem by remember { mutableStateOf(" 선택해주세요") }
+
+        TextButton(onClick = {
+            expanded = !expanded
+        }) {
+            Text(text = selectItem)
+        }
         DropdownMenu(
             expanded = expanded,
             onDismissRequest = { expanded = false },
             properties = PopupProperties(
                 dismissOnClickOutside = false
             ),
-            offset = DpOffset(200.dp, 0.dp)
+            offset = DpOffset(200.dp, 0.dp),
+            modifier = Modifier.requiredSizeIn(maxHeight = 600.dp)
+
         ) {
             val area = AreaCode.valueOf(code)
             val nameList = stringArrayResource(id = area.secondName)
@@ -125,7 +135,8 @@ fun SecondDropDownMenu(code: String) {
                         "DropDown", "first : $firstCode," +
                                 "second: $secondCode"
                     )
-
+                    expanded = !expanded
+                    selectItem = nameList[index]
                 }) {
                     Text(text = name)
                 }
