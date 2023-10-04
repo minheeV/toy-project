@@ -5,9 +5,9 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.toy.compose_retrofit.BuildConfig
-import com.toy.compose_retrofit.retrofit.RentalDataRepository
-import com.toy.compose_retrofit.retrofit.data.RentalDTO
-import com.toy.compose_retrofit.retrofit.data.RentalData
+import com.toy.compose_retrofit.data.data_source.RentalDataRepository
+import com.toy.compose_retrofit.data.model.RentalDTO
+import com.toy.compose_retrofit.data.model.RentalData
 import kotlinx.coroutines.*
 import org.json.JSONObject
 import retrofit2.Call

@@ -1,4 +1,4 @@
-package com.toy.compose_retrofit.retrofit.data
+package com.toy.compose_retrofit.data.model
 
 import com.google.gson.annotations.SerializedName
 
